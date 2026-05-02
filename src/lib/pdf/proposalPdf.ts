@@ -1,0 +1,3 @@
+import type {CalcResult,LangCode} from '@/types/offer';
+import {DICT} from '@/lib/i18n/dictionaries';
+export function downloadProposal(lang:LangCode,result:CalcResult){const d=DICT[lang]; const html=`<!doctype html><meta charset="utf-8"><title>${d.title}</title><body style="font-family:Arial;padding:32px"><h1>${d.title}</h1><p>${d.note}</p><hr><p>${d.subtotal}: ${result.subtotal.toFixed(2)}</p><p>${d.vatTotal}: ${result.vat.toFixed(2)}</p><h2>${d.total}: ${result.total.toFixed(2)}</h2></body>`; const blob=new Blob([html],{type:'text/html;charset=utf-8'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`MT-Altas-Teklif-${lang.toUpperCase()}.html`; a.click(); URL.revokeObjectURL(url)}
