@@ -2,7 +2,7 @@ export type MtaProduct = {
   id: string;
   category: string;
   name: string;
-  unit: 'm²' | 'mt' | 'adet' | 'm³' | 'kg' | 'ton' | 'gün' | 'işçilik';
+  unit: 'm²' | 'mt' | 'adet' | 'm³' | 'kg' | 'ton' | 'gün' | 'işçilik' | 'sefer';
   unitPrice: number;
   densityKgM2?: number;
   palletM2?: number;
@@ -11,11 +11,7 @@ export type MtaProduct = {
   description: string;
 };
 
-export type MtaOfferLine = {
-  id: string;
-  productId: string;
-  quantity: number;
-};
+export type MtaOfferLine = { id: string; productId: string; quantity: number; };
 
 export const MTA_PRODUCTS: MtaProduct[] = [
   { id: 'kilit-tasi-6cm', category: 'Zemin Kaplama', name: 'Kilit Taşı 6 cm', unit: 'm²', unitPrice: 350, densityKgM2: 135, palletM2: 10, colors: ['Gri', 'Kırmızı', 'Siyah', 'Mineralli'], stockLabel: 'Stokta hazır: 5.000 m²', description: 'Yaya yolları, bahçe, site içi ve hafif araç trafiği için uygundur.' },
@@ -27,7 +23,7 @@ export const MTA_PRODUCTS: MtaProduct[] = [
   { id: 'demir-12', category: 'Demir ve Donatı', name: 'İnşaat Demiri Ø12', unit: 'kg', unitPrice: 32, colors: ['Standart'], stockLabel: 'Piyasa durumuna göre', description: 'Donatı ve betonarme uygulamalarında kullanılan ana malzeme.' },
   { id: 'kum', category: 'Agrega ve Dolgu', name: 'Kum', unit: 'ton', unitPrice: 650, colors: ['Standart'], stockLabel: 'Ocak durumuna göre', description: 'Alt temel, harç ve dolgu uygulamaları için.' },
   { id: 'cimento', category: 'Agrega ve Dolgu', name: 'Çimento', unit: 'adet', unitPrice: 210, colors: ['Standart'], stockLabel: 'Stok kontrol gerekir', description: 'Harç, beton ve tamirat uygulamaları için torbalı çimento.' },
-  { id: 'nakliye-tir', category: 'Nakliye ve Lojistik', name: 'Tır Nakliye', unit: 'sefer' as any, unitPrice: 18000, colors: ['Standart'], stockLabel: 'Güzergâha göre', description: 'Uzun mesafe toplu sevkiyat nakliye kalemi.' },
+  { id: 'nakliye-tir', category: 'Nakliye ve Lojistik', name: 'Tır Nakliye', unit: 'sefer', unitPrice: 18000, colors: ['Standart'], stockLabel: 'Güzergâha göre', description: 'Uzun mesafe toplu sevkiyat nakliye kalemi.' },
   { id: 'usta-gunluk', category: 'İşçilik', name: 'Usta Günlük', unit: 'gün', unitPrice: 2500, colors: ['Standart'], stockLabel: 'Ekip uygunluğuna göre', description: 'Genel saha uygulama ve montaj işçiliği.' },
 ];
 
