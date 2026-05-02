@@ -15,71 +15,52 @@ export default function MtaSaasApp() {
   const [vatRate, setVatRate] = useState(0.2);
   const result = useMemo(() => calculateOffer({ area, unitPrice, laborPrice, shipping, vatRate }), [area, unitPrice, laborPrice, shipping, vatRate]);
   const locale = meta.locale;
+  const chartA = Math.max(8, Math.min(82, Math.round((area / 250) * 100)));
+  const chartB = Math.max(8, Math.min(82, Math.round((unitPrice / 800) * 100)));
+  const chartC = Math.max(8, Math.min(82, Math.round((laborPrice / 12000) * 100)));
 
   return (
     <main dir={meta.dir} style={styles.page}>
-      <div style={styles.glowOne} />
-      <div style={styles.glowTwo} />
-      <section style={styles.shell}>
-        <header style={styles.header}>
-          <div style={styles.brandBlock}>
-            <span style={styles.badge}>MT Altaş AI SaaS • Global Edition</span>
-            <h1 style={styles.title}>{T('title')}</h1>
-            <p style={styles.subtitle}>{T('sub')}</p>
-            <div style={styles.trustRow}>
-              <span style={styles.trust}>6 Dil</span>
-              <span style={styles.trust}>Kurumsal PDF</span>
-              <span style={styles.trust}>Anlık Hesap</span>
-              <span style={styles.trust}>Cloud SaaS</span>
-            </div>
-          </div>
-          <div style={styles.topPanel}>
-            <select style={styles.select} value={lang} onChange={(e) => setLang(e.target.value as any)}>
-              {langs.map((l) => <option key={l} value={l}>{LANG_META[l].flag} {LANG_META[l].name}</option>)}
-            </select>
-            <div style={styles.scoreBox}>
-              <span style={styles.scoreLabel}>Teklif Skoru</span>
-              <b style={styles.scoreValue}>98%</b>
-            </div>
-          </div>
+      <aside style={styles.sidebar}>
+        <div style={styles.logoBlock}><b>MT Altaş</b><span>İnşaat Hesaplayıcı</span></div>
+        <nav style={styles.nav}>
+          {['Ana Panel','Proje Yönetimi','Metraj ve Maliyet','Malzeme Takibi','Nakliye ve Lojistik','Teklif Oluştur','Ayarlar'].map((n,i)=><span key={n} style={i===0?styles.navActive:styles.navItem}>{n}</span>)}
+        </nav>
+      </aside>
+      <section style={styles.workspace}>
+        <header style={styles.topbar}>
+          <button style={styles.menuBtn}>☰</button>
+          <div style={styles.search}>Ara...</div>
+          <select style={styles.select} value={lang} onChange={(e) => setLang(e.target.value as any)}>{langs.map((l) => <option key={l} value={l}>{LANG_META[l].flag} {LANG_META[l].name}</option>)}</select>
+          <div style={styles.user}><span style={styles.avatar}>MT</span><div><b>MT Altaş</b><small>Yönetici</small></div></div>
         </header>
-
-        <div style={styles.kpiGrid}>
-          <Kpi title="Toplam" value={money(result.total, locale)} hint="KDV dahil" />
-          <Kpi title="KDV" value={money(result.vat, locale)} hint="otomatik" />
-          <Kpi title="Durum" value="Hazır" hint="PDF indirilebilir" />
+        <div style={styles.hero}>
+          <div><span style={styles.badge}>MT Altaş Pro Dashboard</span><h1 style={styles.title}>{T('title')}</h1><p style={styles.subtitle}>{T('sub')}</p></div>
+          <button onClick={() => downloadProposal(lang, result)} style={styles.goldBtn}>PDF Olarak İndir</button>
         </div>
-
-        <div style={styles.grid}>
-          <div style={styles.card}>
-            <div style={styles.cardHead}>
-              <div>
-                <h2 style={styles.cardTitle}>{T('company')}</h2>
-                <p style={styles.cardSub}>Maliyet kalemlerini gir, teklif tutarı anında hesaplansın.</p>
-              </div>
-              <span style={styles.live}>Canlı</span>
-            </div>
-            <div style={styles.formGrid}>
-              <Field label={T('area')} value={area} setValue={setArea} />
-              <Field label={T('unit')} value={unitPrice} setValue={setUnitPrice} />
-              <Field label={T('labor')} value={laborPrice} setValue={setLabor} />
-              <Field label={T('shipping')} value={shipping} setValue={setShipping} />
-              <Field label={T('vat')} value={vatRate * 100} setValue={(v) => setVatRate(v / 100)} />
-            </div>
-          </div>
-
-          <aside style={styles.resultCard}>
-            <div style={styles.resultTop}>
-              <p style={styles.note}>{T('note')}</p>
-              <span style={styles.shield}>Güvenli Çıktı</span>
-            </div>
-            <div style={styles.rows}>
-              <Row k={T('subtotal')} v={money(result.subtotal, locale)} />
-              <Row k={T('vatTotal')} v={money(result.vat, locale)} />
-              <Row k={T('total')} v={money(result.total, locale)} strong />
-            </div>
-            <button onClick={() => downloadProposal(lang, result)} style={styles.button}>{T('offer')}</button>
-            <p style={styles.micro}>Belge, müşteriye gönderilebilir kurumsal formatta hazırlanır.</p>
+        <div style={styles.mainGrid}>
+          <section style={styles.formCard}>
+            <div style={styles.cardHead}><div><h2 style={styles.cardTitle}>Proje Metrajı ve Maliyet Hesaplama</h2><p style={styles.cardSub}>Görseldeki premium panel yapısına göre yeniden tasarlandı.</p></div><span style={styles.live}>Canlı</span></div>
+            <div style={styles.groupTitle}>1. Kaba / Ana Hesap</div>
+            <div style={styles.formGrid}><Field label={T('area')} value={area} setValue={setArea}/><Field label={T('unit')} value={unitPrice} setValue={setUnitPrice}/><Field label={T('labor')} value={laborPrice} setValue={setLabor}/></div>
+            <div style={styles.groupTitle}>2. Nakliye ve Vergi</div>
+            <div style={styles.formGrid}><Field label={T('shipping')} value={shipping} setValue={setShipping}/><Field label={T('vat')} value={vatRate*100} setValue={(v)=>setVatRate(v/100)}/></div>
+          </section>
+          <aside style={styles.summaryCard}>
+            <h2 style={styles.cardTitle}>Proje Özeti ve Toplam Maliyet</h2>
+            <div style={styles.chartBox}><div style={{...styles.bar,height:`${chartA}%`}}/><div style={{...styles.bar,height:`${chartB}%`}}/><div style={{...styles.bar,height:`${chartC}%`}}/><div style={{...styles.donut}}><span>{Math.round((result.vat/result.total)*100)}%</span></div></div>
+            <Legend label="Metraj"/><Legend label="Birim fiyat"/><Legend label="İşçilik"/>
+          </aside>
+          <section style={styles.mapCard}>
+            <h2 style={styles.cardTitle}>Nakliye ve Lojistik Maliyeti</h2>
+            <div style={styles.fakeMap}><span>Başlangıç</span><i/><b>Varış</b></div>
+            <div style={styles.formGrid}><Field label="Palet Sayısı" value={40} setValue={()=>{}}/><Field label="Tonaj" value={100} setValue={()=>{}}/></div>
+          </section>
+          <aside style={styles.totalCard}>
+            <span style={styles.totalLabel}>Toplam Tahmini Maliyet</span>
+            <b style={styles.totalValue}>{money(result.total,locale)}</b>
+            <button onClick={() => downloadProposal(lang, result)} style={styles.goldBtnFull}>PDF Olarak İndir</button>
+            <button style={styles.outlineBtn}>Müşteri Teklifi Oluştur</button>
           </aside>
         </div>
       </section>
@@ -87,59 +68,18 @@ export default function MtaSaasApp() {
   );
 }
 
-function Kpi({ title, value, hint }: { title: string; value: string; hint: string }) {
-  return <div style={styles.kpi}><span style={styles.kpiTitle}>{title}</span><b style={styles.kpiValue}>{value}</b><small style={styles.kpiHint}>{hint}</small></div>;
-}
-
-function Field({ label, value, setValue }: { label: string; value: number; setValue: (v: number) => void }) {
-  return <label style={styles.field}><span style={styles.label}>{label}</span><input type="number" value={value} onChange={(e) => setValue(Number(e.target.value))} style={styles.input} /></label>;
-}
-
-function Row({ k, v, strong }: { k: string; v: string; strong?: boolean }) {
-  return <div style={styles.row}><span style={styles.rowKey}>{k}</span><b style={strong ? styles.rowStrong : styles.rowValue}>{v}</b></div>;
-}
+function Field({ label, value, setValue }: { label: string; value: number; setValue: (v: number) => void }) {return <label style={styles.field}><span style={styles.label}>{label}</span><input type="number" value={value} onChange={(e)=>setValue(Number(e.target.value))} style={styles.input}/></label>;}
+function Legend({label}:{label:string}){return <div style={styles.legend}><span/> {label}</div>}
 
 const styles: Record<string, React.CSSProperties> = {
-  page: { position: 'relative', minHeight: '100vh', overflow: 'hidden', background: 'radial-gradient(circle at top left,#1e3a8a 0,#0f1724 32%,#020617 100%)', color: '#fff', padding: '34px 16px', fontFamily: 'Inter,Arial,sans-serif' },
-  glowOne: { position: 'absolute', width: 420, height: 420, borderRadius: 999, background: 'rgba(16,185,129,.18)', filter: 'blur(60px)', top: -120, right: -90 },
-  glowTwo: { position: 'absolute', width: 360, height: 360, borderRadius: 999, background: 'rgba(245,158,11,.13)', filter: 'blur(60px)', bottom: -120, left: -80 },
-  shell: { position: 'relative', maxWidth: 1180, margin: '0 auto', borderRadius: 34, border: '1px solid rgba(255,255,255,.13)', background: 'linear-gradient(180deg,rgba(15,23,42,.93),rgba(15,23,42,.82))', padding: 26, boxShadow: '0 30px 100px rgba(0,0,0,.45)' },
-  header: { display: 'flex', justifyContent: 'space-between', gap: 22, flexWrap: 'wrap' },
-  brandBlock: { maxWidth: 760 },
-  badge: { display: 'inline-flex', border: '1px solid rgba(251,191,36,.35)', background: 'rgba(251,191,36,.12)', color: '#fde68a', borderRadius: 999, padding: '8px 13px', fontSize: 12, fontWeight: 900 },
-  title: { margin: '16px 0 8px', fontSize: 'clamp(38px,6vw,72px)', lineHeight: .96, fontWeight: 950, letterSpacing: '-.055em' },
-  subtitle: { margin: 0, color: '#dbeafe', fontSize: 17, lineHeight: 1.65 },
-  trustRow: { display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 18 },
-  trust: { border: '1px solid rgba(255,255,255,.12)', background: 'rgba(255,255,255,.07)', borderRadius: 999, padding: '8px 11px', color: '#e5e7eb', fontSize: 12, fontWeight: 800 },
-  topPanel: { display: 'grid', gap: 12, minWidth: 190 },
-  select: { height: 48, borderRadius: 16, padding: '0 14px', border: '2px solid rgba(255,255,255,.9)', background: '#fff', color: '#111827', fontWeight: 900 },
-  scoreBox: { borderRadius: 18, border: '1px solid rgba(255,255,255,.12)', background: 'rgba(255,255,255,.08)', padding: 14 },
-  scoreLabel: { display: 'block', color: '#cbd5e1', fontSize: 12, fontWeight: 800 },
-  scoreValue: { display: 'block', marginTop: 4, fontSize: 30, fontWeight: 950 },
-  kpiGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(210px,1fr))', gap: 14, marginTop: 26 },
-  kpi: { borderRadius: 22, border: '1px solid rgba(255,255,255,.12)', background: 'rgba(255,255,255,.075)', padding: 18 },
-  kpiTitle: { display: 'block', color: '#93c5fd', fontWeight: 900, fontSize: 13 },
-  kpiValue: { display: 'block', marginTop: 8, fontSize: 26, fontWeight: 950 },
-  kpiHint: { display: 'block', marginTop: 5, color: '#cbd5e1', fontWeight: 700 },
-  grid: { display: 'grid', gridTemplateColumns: 'minmax(0,1.18fr) minmax(330px,.82fr)', gap: 18, marginTop: 18 },
-  card: { borderRadius: 26, border: '1px solid rgba(255,255,255,.13)', background: 'rgba(30,41,59,.82)', padding: 22 },
-  cardHead: { display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 14, marginBottom: 16 },
-  cardTitle: { margin: 0, fontSize: 25, fontWeight: 950 },
-  cardSub: { margin: '7px 0 0', color: '#cbd5e1', fontSize: 13 },
-  live: { borderRadius: 999, background: 'rgba(16,185,129,.16)', color: '#bbf7d0', padding: '7px 10px', fontSize: 12, fontWeight: 900 },
-  formGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 14 },
-  field: { display: 'block' },
-  label: { display: 'block', marginBottom: 7, color: '#dbeafe', fontSize: 13, fontWeight: 900 },
-  input: { width: '100%', height: 52, boxSizing: 'border-box', borderRadius: 16, border: '1px solid rgba(255,255,255,.16)', background: '#fff', color: '#111827', padding: '0 14px', fontSize: 16, fontWeight: 900, outline: 'none' },
-  resultCard: { borderRadius: 26, border: '1px solid rgba(45,212,191,.35)', background: 'linear-gradient(180deg,rgba(20,184,166,.18),rgba(15,118,110,.18))', padding: 22, boxShadow: '0 22px 70px rgba(20,184,166,.12)' },
-  resultTop: { display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start' },
-  note: { margin: 0, color: '#d1fae5', fontSize: 15, fontWeight: 900, lineHeight: 1.5 },
-  shield: { whiteSpace: 'nowrap', borderRadius: 999, background: 'rgba(255,255,255,.1)', padding: '7px 9px', color: '#ccfbf1', fontSize: 11, fontWeight: 900 },
-  rows: { marginTop: 24 },
-  row: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '14px 0', borderBottom: '1px solid rgba(255,255,255,.14)' },
-  rowKey: { color: '#dbeafe', fontSize: 14 },
-  rowValue: { color: '#fff', fontSize: 17 },
-  rowStrong: { color: '#fff', fontSize: 29, fontWeight: 950 },
-  button: { marginTop: 24, width: '100%', border: 0, borderRadius: 20, background: 'linear-gradient(135deg,#10b981,#14b8a6)', color: '#fff', padding: '17px 18px', fontSize: 17, fontWeight: 950, cursor: 'pointer', boxShadow: '0 18px 50px rgba(16,185,129,.32)' },
-  micro: { margin: '12px 0 0', color: '#cbd5e1', fontSize: 12, textAlign: 'center' },
+  page:{minHeight:'100vh',display:'grid',gridTemplateColumns:'250px 1fr',background:'#eef1f5',color:'#1f2937',fontFamily:'Inter,Arial,sans-serif'},
+  sidebar:{background:'linear-gradient(180deg,#1f252b,#111827)',color:'#d1d5db',padding:22,boxShadow:'12px 0 40px rgba(0,0,0,.16)'},
+  logoBlock:{height:82,borderBottom:'1px solid rgba(255,255,255,.08)',display:'grid',alignContent:'center',color:'#d6bd73',fontSize:22},
+  nav:{display:'grid',gap:10,marginTop:22},navItem:{padding:'13px 14px',borderRadius:12,fontWeight:800,fontSize:14},navActive:{padding:'13px 14px',borderRadius:12,fontWeight:900,fontSize:14,background:'rgba(214,189,115,.18)',color:'#fff',border:'1px solid rgba(214,189,115,.28)'},
+  workspace:{padding:22},topbar:{height:62,display:'flex',alignItems:'center',gap:14,background:'#20262d',color:'#fff',borderRadius:18,padding:'0 16px',boxShadow:'0 16px 40px rgba(31,41,55,.18)'},menuBtn:{background:'transparent',border:0,color:'#fff',fontSize:22},search:{marginLeft:'auto',minWidth:220,background:'rgba(255,255,255,.09)',borderRadius:999,padding:'11px 18px',color:'#cbd5e1'},select:{height:42,borderRadius:12,border:0,padding:'0 10px',fontWeight:900},user:{display:'flex',alignItems:'center',gap:10}.avatar:{width:38,height:38,borderRadius:999,background:'#d6bd73',color:'#111827',display:'grid',placeItems:'center',fontWeight:900},
+  hero:{display:'flex',justifyContent:'space-between',gap:18,alignItems:'flex-end',margin:'22px 0',background:'#fff',borderRadius:20,padding:24,boxShadow:'0 18px 55px rgba(15,23,42,.08)'},badge:{color:'#8a6d2c',fontWeight:950},title:{margin:'8px 0 6px',fontSize:'clamp(30px,5vw,54px)',letterSpacing:'-.05em'},subtitle:{margin:0,color:'#64748b'},goldBtn:{border:0,borderRadius:14,background:'#c6a85a',color:'#111827',padding:'13px 18px',fontWeight:950},
+  mainGrid:{display:'grid',gridTemplateColumns:'1.35fr .65fr',gap:18},formCard:{background:'#fff',borderRadius:20,padding:22,boxShadow:'0 18px 55px rgba(15,23,42,.08)'},summaryCard:{background:'#fff',borderRadius:20,padding:22,boxShadow:'0 18px 55px rgba(15,23,42,.08)'},mapCard:{background:'#fff',borderRadius:20,padding:22,boxShadow:'0 18px 55px rgba(15,23,42,.08)'},totalCard:{background:'linear-gradient(180deg,#20262d,#111827)',borderRadius:20,padding:24,color:'#fff',boxShadow:'0 18px 55px rgba(15,23,42,.18)'},
+  cardHead:{display:'flex',justifyContent:'space-between',gap:14},cardTitle:{margin:'0 0 12px',fontSize:22},cardSub:{margin:0,color:'#64748b'},live:{background:'#ecfdf5',color:'#047857',borderRadius:999,padding:'8px 10px',fontWeight:900},groupTitle:{margin:'20px 0 10px',fontWeight:950},formGrid:{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(190px,1fr))',gap:14},field:{display:'grid',gap:6},label:{fontWeight:900,fontSize:13},input:{height:46,border:'1px solid #d1d5db',borderRadius:12,padding:'0 12px',fontWeight:900,fontSize:15},
+  chartBox:{height:185,display:'flex',gap:14,alignItems:'end',borderBottom:'1px solid #e5e7eb',paddingBottom:12},bar:{width:32,background:'#20262d',borderRadius:'8px 8px 0 0'},donut:{marginLeft:'auto',width:96,height:96,borderRadius:999,background:'conic-gradient(#c6a85a 0 38%,#20262d 38% 65%,#e5e7eb 65% 100%)',display:'grid',placeItems:'center',fontWeight:950},legend:{display:'inline-flex',gap:8,alignItems:'center',margin:'12px 12px 0 0',fontWeight:800,color:'#475569'},fakeMap:{height:155,borderRadius:16,background:'linear-gradient(135deg,#dbeafe,#fef3c7)',marginBottom:14,position:'relative',display:'flex',alignItems:'center',justifyContent:'space-around',fontWeight:900},
+  totalLabel:{display:'block',color:'#cbd5e1',fontWeight:900,textAlign:'center'},totalValue:{display:'block',fontSize:38,color:'#d6bd73',textAlign:'center',margin:'18px 0 24px'},goldBtnFull:{width:'100%',border:0,borderRadius:14,background:'#d6bd73',padding:'15px',fontWeight:950},outlineBtn:{width:'100%',border:'1px solid rgba(214,189,115,.55)',borderRadius:14,background:'transparent',color:'#f8fafc',padding:'15px',fontWeight:950,marginTop:12}
 };
