@@ -1,11 +1,21 @@
 export default function CalculatorCorePage(){
   return (
-    <main style={{height:'100vh',background:'#0b1220',margin:0,padding:0}}>
-      <iframe
-        title="MT Altaş Hesaplayıcı Core"
-        src="/legacy/mt-altas-hesaplayici.html.html"
-        style={{width:'100%',height:'100%',border:0,display:'block'}}
-      />
+    <main className="mta-core-shell">
+      <header className="mta-core-topbar">
+        <div className="mta-saas-brand"><span>MT</span><strong>Altaş Core Engine</strong></div>
+        <nav className="mta-core-actions">
+          <a href="/">Giriş</a>
+          <a href="/dashboard">Dashboard</a>
+          <a href="/calculator/core" className="active">Core</a>
+        </nav>
+      </header>
+      <section className="mta-core-frame-card">
+        <iframe
+          title="MT Altaş Hesaplayıcı Core"
+          src="/legacy/mt-altas-hesaplayici.html.html"
+          className="mta-core-frame"
+        />
+      </section>
     </main>
   );
 }
