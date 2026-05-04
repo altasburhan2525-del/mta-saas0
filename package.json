@@ -1,6 +1,6 @@
 {
-  "name": "mta-next-saas-starter",
-  "version": "0.1.0",
+  "name": "mta-saas0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,21 +9,13 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@supabase/supabase-js": "latest",
-    "@tailwindcss/postcss": "latest",
-    "next": "15.5.9",
-    "react": "19.0.0",
-    "react-dom": "19.0.0"
-  },
-  "devDependencies": {
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
-    "autoprefixer": "latest",
-    "eslint": "latest",
-    "eslint-config-next": "latest",
-    "postcss": "latest",
-    "tailwindcss": "latest",
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest",
     "typescript": "latest"
-  }
+  },
+  "devDependencies": {}
 }

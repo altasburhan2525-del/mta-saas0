@@ -1,10 +1,6 @@
-# MT Altaş Next.js SaaS Starter
+# MT Altaş SaaS v1
 
-6 dil destekli MTA bayi / SaaS platformu başlangıç deposu.
-
-## Hedef domain
-
-`https://app.mtaltasinsaat.com/`
+`app.mtaltasinsaat.com` için Next.js tabanlı bayi / teklif / hesaplama SaaS başlangıç sistemi.
 
 ## Kurulum
 
@@ -15,20 +11,23 @@ npm run dev
 
 ## Yayın
 
-Vercel'e yükleyip `app.mtaltasinsaat.com` domainini bağlayın.
+Vercel'e yükleyin ve domain olarak `app.mtaltasinsaat.com` bağlayın.
 
-## v1 Modülleri
+## Modüller
 
 - Admin panel
 - Bayi panel
-- Müşteri teklif görüntüleme
-- Teklif / hesaplama API iskeleti
+- Dashboard
+- Login ekranı
+- Müşteri teklif görüntüleme sayfası
+- API route iskeleti
 - 6 dil altyapısı: TR, EN, DE, FR, RU, AR
-- MTA hesaplayıcı entegrasyon hazırlığı
+- MySQL şema taslağı
+- MTA hesaplayıcı entegrasyon alanı
 
-## Roller
+## Demo giriş
 
-- `super_admin`: Sistem sahibi
-- `dealer_admin`: Bayi / firma sahibi
-- `staff`: Bayi personeli
-- `customer`: Teklif görüntüleyen müşteri
+- admin@mta.local / demo123
+- bayi@mta.local / demo123
+
+> Bu v1 iskelet demo-auth içerir. Canlıya geçmeden JWT/session + gerçek veritabanı bağlantısı bağlanmalıdır.
