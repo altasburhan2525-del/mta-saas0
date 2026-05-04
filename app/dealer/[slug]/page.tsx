@@ -1,7 +1,12 @@
 import { getDealerBySlug } from '@/lib/dealers';
 
-export default function DealerPage({ params }: { params: { slug: string } }){
-  const dealer = getDealerBySlug(params.slug);
+type DealerPageProps = {
+  params: Promise<{ slug: string }>;
+};
+
+export default async function DealerPage({ params }: DealerPageProps){
+  const { slug } = await params;
+  const dealer = getDealerBySlug(slug);
 
   const legacyUrl = `/legacy/mt-altas-hesaplayici.html.html?dealer=${dealer.slug}&color=${encodeURIComponent(dealer.themeColor)}&vat=${dealer.vatRate}&phone=${dealer.phone}&name=${encodeURIComponent(dealer.name)}`;
 
