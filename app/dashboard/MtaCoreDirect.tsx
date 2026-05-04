@@ -2,18 +2,9 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-type SyncPayload = {
-  project?: string;
-  customer?: string;
-  city?: string;
-  area?: number;
-  depth?: number;
-  distance?: number;
-  vat?: number;
-  fuel?: number;
-  cement?: number;
-  sand?: number;
-};
+type SyncPayload = { project?: string; customer?: string; city?: string; area?: number; depth?: number; distance?: number; vat?: number; fuel?: number; cement?: number; sand?: number; };
+
+type CoreResult = { totalText?: string; subtotalText?: string; vatText?: string; areaText?: string; rawText?: string; source: string; updatedAt: string; };
 
 function setInputValue(root: ParentNode, selectors: string[], value: string | number | undefined){
   if (value === undefined || value === null) return;
@@ -24,10 +15,33 @@ function setInputValue(root: ParentNode, selectors: string[], value: string | nu
   el.dispatchEvent(new Event('change', { bubbles: true }));
 }
 
+function readText(root: ParentNode, selectors: string[]){
+  for (const selector of selectors){
+    const el = root.querySelector<HTMLElement>(selector);
+    const text = el?.innerText?.trim() || el?.textContent?.trim();
+    if (text) return text;
+  }
+  return '';
+}
+
+function emitCoreResult(){
+  const root = document.querySelector('#mta11-smart-calc-root');
+  if (!root) return;
+  const result: CoreResult = {
+    totalText: readText(root, ['#mta11_total', '#mta11_grand_total', '.mta-total-value', '[data-mta-total]', '[id*="total"]']),
+    subtotalText: readText(root, ['#mta11_subtotal', '#mta11_sub_total', '[data-mta-subtotal]', '[id*="subtotal"]']),
+    vatText: readText(root, ['#mta11_kdv_total', '#mta11_vat_total', '[data-mta-vat]', '[id*="kdv"]']),
+    areaText: readText(root, ['#mta11_area_result', '#mta11_m2_result', '[data-mta-area]', '[id*="area"]']),
+    rawText: root.textContent?.slice(0, 2000) || '',
+    source: 'mta-core-dom',
+    updatedAt: new Date().toISOString()
+  };
+  window.dispatchEvent(new CustomEvent('mta-saas-core-result', { detail: result }));
+}
+
 function syncCore(payload: SyncPayload){
   const root = document.querySelector('#mta11-smart-calc-root');
   if (!root) return;
-
   setInputValue(root, ['#mta11_area', '#mta11_m2', 'input[name="area"]', 'input[id*="area"]', 'input[id*="m2"]'], payload.area);
   setInputValue(root, ['#mta11_distance', '#mta11_km', 'input[name="distance"]', 'input[id*="distance"]', 'input[id*="km"]'], payload.distance);
   setInputValue(root, ['#mta11_vat', '#mta11_kdv', 'select[name="vat"]', 'select[id*="kdv"]', 'input[id*="kdv"]'], payload.vat);
@@ -36,14 +50,15 @@ function syncCore(payload: SyncPayload){
   setInputValue(root, ['#mta11_fuel_price', '#mta11_diesel_price', 'input[id*="fuel"]', 'input[id*="mazot"]'], payload.fuel);
   setInputValue(root, ['#mta11_cement_price', 'input[id*="cement"]', 'input[id*="cimento"]'], payload.cement);
   setInputValue(root, ['#mta11_sand_price', 'input[id*="sand"]', 'input[id*="kum"]'], payload.sand);
-
   const calcBtn = root.querySelector<HTMLButtonElement>('#mta11_calculate_btn, button[id*="calculate"], button[data-action="calculate"]');
   calcBtn?.click();
+  setTimeout(emitCoreResult, 350);
 }
 
 export default function MtaCoreDirect(){
   const hostRef = useRef<HTMLDivElement | null>(null);
   const loadedRef = useRef(false);
+  const observerRef = useRef<MutationObserver | null>(null);
   const [status, setStatus] = useState('Core yükleniyor...');
 
   useEffect(() => {
@@ -56,12 +71,8 @@ export default function MtaCoreDirect(){
     if (loadedRef.current || !hostRef.current) return;
     loadedRef.current = true;
     let alive = true;
-
     fetch('/legacy/mt-altas-hesaplayici.html.html')
-      .then((res) => {
-        if (!res.ok) throw new Error('Core HTML bulunamadı');
-        return res.text();
-      })
+      .then((res) => { if (!res.ok) throw new Error('Core HTML bulunamadı'); return res.text(); })
       .then((html) => {
         if (!alive || !hostRef.current) return;
         const doc = new DOMParser().parseFromString(html, 'text/html');
@@ -75,18 +86,17 @@ export default function MtaCoreDirect(){
           script.text = oldScript.textContent || '';
           document.body.appendChild(script);
         });
-        setStatus('Core doğrudan DOM içine bağlandı ve senkron köprüsü aktif.');
-        setTimeout(() => window.dispatchEvent(new CustomEvent('mta-saas-core-ready')), 300);
+        const liveRoot = document.querySelector('#mta11-smart-calc-root');
+        if (liveRoot) {
+          observerRef.current = new MutationObserver(() => window.requestAnimationFrame(emitCoreResult));
+          observerRef.current.observe(liveRoot, { childList: true, subtree: true, characterData: true });
+        }
+        setStatus('Core bağlı: çift yönlü sonuç köprüsü aktif.');
+        setTimeout(() => { window.dispatchEvent(new CustomEvent('mta-saas-core-ready')); emitCoreResult(); }, 500);
       })
       .catch((err) => setStatus(`Core bağlanamadı: ${err.message}`));
-
-    return () => { alive = false; };
+    return () => { alive = false; observerRef.current?.disconnect(); };
   }, []);
 
-  return (
-    <div className="mta-direct-core-wrap">
-      <div className="mta-direct-core-status">{status}</div>
-      <div ref={hostRef} className="mta-direct-core-host" />
-    </div>
-  );
+  return <div className="mta-direct-core-wrap"><div className="mta-direct-core-status">{status}</div><div ref={hostRef} className="mta-direct-core-host" /></div>;
 }
