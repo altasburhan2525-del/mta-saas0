@@ -10,6 +10,8 @@ type Product = {
   price: number;
 };
 
+const WHATSAPP_NUMBER = '905426174956';
+
 export default function CalculatorApp(){
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedProductId, setSelectedProductId] = useState('');
@@ -66,6 +68,8 @@ export default function CalculatorApp(){
   };
 
   const printUrl = proposalResult ? `/proposal/print?id=${encodeURIComponent(proposalResult.id)}&customer=${encodeURIComponent(proposalResult.customerName)}&project=${encodeURIComponent(proposalResult.projectName)}&product=${encodeURIComponent(proposalResult.productName)}&unit=${encodeURIComponent(proposalResult.productUnit)}&quantity=${encodeURIComponent(proposalResult.quantity)}&subtotal=${encodeURIComponent(proposalResult.subtotal)}&vat=${encodeURIComponent(proposalResult.vat)}&total=${encodeURIComponent(proposalResult.total)}` : '';
+  const whatsappText = proposalResult ? `MT Altaş Hesaplayıcı teklifiniz:%0A%0ATeklif No: ${proposalResult.id}%0AMüşteri: ${proposalResult.customerName}%0AProje: ${proposalResult.projectName}%0AÜrün: ${proposalResult.productName}%0AToplam: ${proposalResult.total} ₺%0A%0ATeklif: ${typeof window !== 'undefined' ? window.location.origin + printUrl : printUrl}` : '';
+  const whatsappUrl = proposalResult ? `https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappText}` : '';
 
   return (
     <div style={{display:'grid',gap:14}}>
@@ -107,7 +111,10 @@ export default function CalculatorApp(){
           <div>No: {proposalResult.id}</div>
           <div>Müşteri: {proposalResult.customerName}</div>
           <div>Toplam: {proposalResult.total} ₺</div>
-          <a href={printUrl} target="_blank" style={{display:'inline-flex',marginTop:12,padding:'12px 16px',borderRadius:12,background:'#fff',color:'#111827',fontWeight:900,textDecoration:'none'}}>PDF / Teklif Görüntüle</a>
+          <div style={{display:'flex',gap:10,flexWrap:'wrap',marginTop:12}}>
+            <a href={printUrl} target="_blank" style={{display:'inline-flex',padding:'12px 16px',borderRadius:12,background:'#fff',color:'#111827',fontWeight:900,textDecoration:'none'}}>PDF / Teklif Görüntüle</a>
+            <a href={whatsappUrl} target="_blank" style={{display:'inline-flex',padding:'12px 16px',borderRadius:12,background:'#25D366',color:'#0f1724',fontWeight:900,textDecoration:'none'}}>WhatsApp Gönder</a>
+          </div>
         </div>
       )}
     </div>
