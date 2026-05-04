@@ -42,7 +42,8 @@ export default function DashboardClient(){
     const total = subtotal + vatAmount;
     const days = Math.max(1, Math.ceil(safeArea / 85 + safeDistance / 140));
     const code = `MTA-${new Date().getFullYear()}-${String(Math.round(total) % 10000).padStart(4, '0')}`;
-    return { safeArea, safeDepth, safeDistance, volume, material, logistics, labor, subtotal, vatAmount, total, days, code };
+    const verifyUrl = `https://app.mtaltasinsaat.com/verify/${code}`;
+    return { safeArea, safeDepth, safeDistance, volume, material, logistics, labor, subtotal, vatAmount, total, days, code, verifyUrl };
   }, [area, depth, distance, vat, fuel, cement, sand]);
 
   const quickStats = [
@@ -58,6 +59,11 @@ export default function DashboardClient(){
     ['Lojistik planlama', `${Math.max(1, Math.ceil(data.safeDistance / 45))} sefer`, currency.format(data.logistics)],
     ['KDV', `%${vat}`, currency.format(data.vatAmount)]
   ];
+
+  const saveDraft = () => {
+    localStorage.setItem('mta_saas_draft', JSON.stringify({project, customer, city, area, depth, distance, vat, fuel, cement, sand, code:data.code, verifyUrl:data.verifyUrl, savedAt:new Date().toISOString()}));
+    alert('Taslak ve doğrulama bilgisi kaydedildi.');
+  };
 
   return (
     <>
@@ -86,22 +92,22 @@ export default function DashboardClient(){
             <div className="mta-price-card"><h3>Birim Fiyatlar</h3><div className="mta-compact-form prices"><label>Mazot<input type="number" value={fuel} onChange={(e)=>setFuel(Number(e.target.value))} /></label><label>Çimento<input type="number" value={cement} onChange={(e)=>setCement(Number(e.target.value))} /></label><label>Kum m³<input type="number" value={sand} onChange={(e)=>setSand(Number(e.target.value))} /></label></div></div>
           </div>
 
-          <aside className="mta-panel mta-schema-card"><div className="mta-panel-head"><div><h2>{t.preview}</h2><p>{project} için canlı teknik kesit.</p></div><div className="mta-qr">QR</div></div><div className="mta-schema-preview"><div className="layer layer-a" style={{height: `${Math.min(80, 28 + data.safeDepth)}px`}}>Kaplama 8 cm</div><div className="layer layer-b" style={{height: `${Math.min(130, 45 + data.safeDepth * 2)}px`}}>Dolgu {data.safeDepth} cm</div><div className="layer layer-c">Stabilize zemin</div><span>{data.safeArea.toLocaleString('tr-TR')} m² • {data.volume.toFixed(1)} m³ • {data.code}</span></div><div className="mta-mini-chart"><i style={{height:`${Math.min(95, 30 + data.material/data.total*70)}%`}}></i><i style={{height:`${Math.min(95, 30 + data.labor/data.total*70)}%`}}></i><i style={{height:`${Math.min(95, 30 + data.logistics/data.total*70)}%`}}></i><i style={{height:`${Math.min(95, 30 + data.vatAmount/data.total*70)}%`}}></i></div></aside>
+          <aside className="mta-panel mta-schema-card"><div className="mta-panel-head"><div><h2>{t.preview}</h2><p>{project} için canlı teknik kesit.</p></div><a className="mta-qr" href={data.verifyUrl} target="_blank">QR</a></div><div className="mta-schema-preview"><div className="layer layer-a" style={{height: `${Math.min(80, 28 + data.safeDepth)}px`}}>Kaplama 8 cm</div><div className="layer layer-b" style={{height: `${Math.min(130, 45 + data.safeDepth * 2)}px`}}>Dolgu {data.safeDepth} cm</div><div className="layer layer-c">Stabilize zemin</div><span>{data.safeArea.toLocaleString('tr-TR')} m² • {data.volume.toFixed(1)} m³ • {data.code}</span></div><div className="mta-mini-chart"><i style={{height:`${Math.min(95, 30 + data.material/data.total*70)}%`}}></i><i style={{height:`${Math.min(95, 30 + data.labor/data.total*70)}%`}}></i><i style={{height:`${Math.min(95, 30 + data.logistics/data.total*70)}%`}}></i><i style={{height:`${Math.min(95, 30 + data.vatAmount/data.total*70)}%`}}></i></div></aside>
         </section>
 
-        <section className="mta-panel mta-offer-panel"><div className="mta-panel-head"><div><h2>{t.offer}</h2><p>{project} için PDF öncesi canlı teklif özeti.</p></div><strong className="mta-track">{data.code}</strong></div><table className="mta-offer-table"><thead><tr><th>Kalem</th><th>Miktar</th><th>Tutar</th></tr></thead><tbody>{offerRows.map(([item, qty, total])=>(<tr key={item}><td>{item}</td><td>{qty}</td><td>{total}</td></tr>))}<tr><td><strong>Genel Toplam</strong></td><td>{city}</td><td><strong>{currency.format(data.total)}</strong></td></tr></tbody></table></section>
+        <section className="mta-panel mta-offer-panel"><div className="mta-panel-head"><div><h2>{t.offer}</h2><p>{project} için PDF öncesi canlı teklif özeti.</p><a className="mta-verify-link" href={data.verifyUrl} target="_blank">Doğrulama linki: {data.verifyUrl}</a></div><strong className="mta-track">{data.code}</strong></div><table className="mta-offer-table"><thead><tr><th>Kalem</th><th>Miktar</th><th>Tutar</th></tr></thead><tbody>{offerRows.map(([item, qty, total])=>(<tr key={item}><td>{item}</td><td>{qty}</td><td>{total}</td></tr>))}<tr><td><strong>Genel Toplam</strong></td><td>{city}</td><td><strong>{currency.format(data.total)}</strong></td></tr></tbody></table></section>
 
-        <div className="mta-fixed-actions"><button onClick={()=>window.print()}>PDF Oluştur</button><button onClick={()=>localStorage.setItem('mta_saas_draft', JSON.stringify({project, customer, city, area, depth, distance, vat, fuel, cement, sand, savedAt:new Date().toISOString()}))}>Taslak Kaydet</button></div>
+        <div className="mta-fixed-actions"><button onClick={()=>window.print()}>PDF Oluştur</button><button onClick={saveDraft}>Taslak Kaydet</button></div>
       </section>
     </main>
 
     <section className="mta-print-document" aria-label="Profesyonel teklif belgesi">
-      <header className="mta-print-header"><div className="mta-print-logo">MT</div><div><h1>MT Altaş İnşaat</h1><p>Profesyonel Hesaplama ve Teklif Belgesi</p></div><div className="mta-print-qr"><span>QR</span><strong>{data.code}</strong></div></header>
+      <header className="mta-print-header"><div className="mta-print-logo">MT</div><div><h1>MT Altaş İnşaat</h1><p>Profesyonel Hesaplama ve Teklif Belgesi</p></div><div className="mta-print-qr"><span>QR</span><strong>{data.code}</strong><small>{data.verifyUrl}</small></div></header>
       <div className="mta-print-meta"><div><b>Müşteri</b><span>{customer}</span></div><div><b>Proje</b><span>{project}</span></div><div><b>Şehir</b><span>{city}</span></div><div><b>Tarih</b><span>{today}</span></div></div>
       <div className="mta-print-summary"><div><small>Metraj</small><strong>{data.safeArea.toLocaleString('tr-TR')} m²</strong></div><div><small>Hacim</small><strong>{data.volume.toFixed(1)} m³</strong></div><div><small>Termin</small><strong>{data.days} gün</strong></div><div><small>Genel Toplam</small><strong>{currency.format(data.total)}</strong></div></div>
       <table className="mta-print-table"><thead><tr><th>Hizmet / Ürün</th><th>Miktar</th><th>Tutar</th></tr></thead><tbody>{offerRows.map(([item, qty, total])=>(<tr key={item}><td>{item}</td><td>{qty}</td><td>{total}</td></tr>))}</tbody></table>
       <div className="mta-print-total"><span>Ara Toplam: {currency.format(data.subtotal)}</span><span>KDV: {currency.format(data.vatAmount)}</span><strong>Genel Toplam: {currency.format(data.total)}</strong></div>
-      <footer className="mta-print-footer"><p>Bu belge MT Altaş dijital hesaplama altyapısı ile hazırlanmıştır. Takip kodu ve QR alanı dijital doğrulama için ayrılmıştır.</p><div><b>MT Altaş İnşaat</b><span>Kaşe / İmza</span></div></footer>
+      <footer className="mta-print-footer"><p>Bu belge MT Altaş dijital hesaplama altyapısı ile hazırlanmıştır. Doğrulama adresi: {data.verifyUrl}</p><div><b>MT Altaş İnşaat</b><span>Kaşe / İmza</span></div></footer>
     </section>
     </>
   );
