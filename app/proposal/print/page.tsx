@@ -54,7 +54,7 @@ export default function ProposalPrintPage(){
           Bu belge MT Altaş Hesaplayıcı sistemi tarafından oluşturulmuştur.
         </footer>
 
-        <button onClick="window.print()" style={{marginTop:20,padding:'12px 18px',borderRadius:12,border:0,background:'#d83939',color:'#fff',fontWeight:900}}>PDF / Yazdır</button>
+        <button type="button" style={{marginTop:20,padding:'12px 18px',borderRadius:12,border:0,background:'#d83939',color:'#fff',fontWeight:900}}>PDF / Yazdır için Ctrl+P</button>
       </section>
     </main>
   );
