@@ -18,6 +18,11 @@ export default function CalculatorApp(){
   const [laborPrice, setLaborPrice] = useState(0);
   const [transportPrice, setTransportPrice] = useState(0);
 
+  const [customerName, setCustomerName] = useState('');
+  const [projectName, setProjectName] = useState('');
+
+  const [proposalResult, setProposalResult] = useState<any>(null);
+
   useEffect(()=>{
     fetch('/api/products')
       .then(r=>r.json())
@@ -42,6 +47,27 @@ export default function CalculatorApp(){
     if(product) setUnitPrice(product.price);
   };
 
+  const createProposal = async () => {
+    const res = await fetch('/api/proposals',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        areaM2: quantity,
+        unitPrice,
+        laborPrice,
+        transportPrice,
+        vatRate: 0.20,
+        customerName,
+        projectName,
+        productName: selectedProduct?.name,
+        productUnit: selectedProduct?.unit,
+        quantity
+      })
+    });
+    const data = await res.json();
+    setProposalResult(data.proposal);
+  };
+
   return (
     <div style={{display:'grid',gap:14}}>
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:12}}>
@@ -62,6 +88,12 @@ export default function CalculatorApp(){
         <label>Nakliye
           <input type='number' value={transportPrice} onChange={e=>setTransportPrice(Number(e.target.value))} style={inputStyle} />
         </label>
+        <label>Müşteri adı
+          <input value={customerName} onChange={e=>setCustomerName(e.target.value)} style={inputStyle} />
+        </label>
+        <label>Proje adı
+          <input value={projectName} onChange={e=>setProjectName(e.target.value)} style={inputStyle} />
+        </label>
       </div>
 
       <div style={{background:'#243041',padding:16,borderRadius:12}}>
@@ -70,6 +102,17 @@ export default function CalculatorApp(){
         <div>KDV: {formatTry(result.vat)}</div>
         <strong>Genel Toplam: {formatTry(result.total)}</strong>
       </div>
+
+      <button onClick={createProposal} style={{height:48,borderRadius:14,border:0,background:'#d83939',color:'#fff',fontWeight:900}}>Teklif Oluştur</button>
+
+      {proposalResult && (
+        <div style={{background:'#1b2433',padding:16,borderRadius:12}}>
+          <strong>Teklif oluşturuldu</strong>
+          <div>No: {proposalResult.id}</div>
+          <div>Müşteri: {proposalResult.customerName}</div>
+          <div>Toplam: {proposalResult.total} ₺</div>
+        </div>
+      )}
     </div>
   );
 }
