@@ -17,10 +17,8 @@ export default function CalculatorApp(){
   const [unitPrice, setUnitPrice] = useState(750);
   const [laborPrice, setLaborPrice] = useState(0);
   const [transportPrice, setTransportPrice] = useState(0);
-
   const [customerName, setCustomerName] = useState('');
   const [projectName, setProjectName] = useState('');
-
   const [proposalResult, setProposalResult] = useState<any>(null);
 
   useEffect(()=>{
@@ -38,7 +36,6 @@ export default function CalculatorApp(){
   },[]);
 
   const selectedProduct = products.find(product => product.id === selectedProductId);
-
   const result = useMemo(()=>calculateOffer({ areaM2: quantity, unitPrice, laborPrice, transportPrice, vatRate: 0.20 }),[quantity, unitPrice, laborPrice, transportPrice]);
 
   const onProductChange = (id: string) => {
@@ -68,6 +65,8 @@ export default function CalculatorApp(){
     setProposalResult(data.proposal);
   };
 
+  const printUrl = proposalResult ? `/proposal/print?id=${encodeURIComponent(proposalResult.id)}&customer=${encodeURIComponent(proposalResult.customerName)}&project=${encodeURIComponent(proposalResult.projectName)}&product=${encodeURIComponent(proposalResult.productName)}&unit=${encodeURIComponent(proposalResult.productUnit)}&quantity=${encodeURIComponent(proposalResult.quantity)}&subtotal=${encodeURIComponent(proposalResult.subtotal)}&vat=${encodeURIComponent(proposalResult.vat)}&total=${encodeURIComponent(proposalResult.total)}` : '';
+
   return (
     <div style={{display:'grid',gap:14}}>
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:12}}>
@@ -95,33 +94,24 @@ export default function CalculatorApp(){
           <input value={projectName} onChange={e=>setProjectName(e.target.value)} style={inputStyle} />
         </label>
       </div>
-
       <div style={{background:'#243041',padding:16,borderRadius:12}}>
         <div>Seçilen: {selectedProduct?.name || 'Ürün seçilmedi'}</div>
         <div>Ara Toplam: {formatTry(result.subtotal)}</div>
         <div>KDV: {formatTry(result.vat)}</div>
         <strong>Genel Toplam: {formatTry(result.total)}</strong>
       </div>
-
       <button onClick={createProposal} style={{height:48,borderRadius:14,border:0,background:'#d83939',color:'#fff',fontWeight:900}}>Teklif Oluştur</button>
-
       {proposalResult && (
         <div style={{background:'#1b2433',padding:16,borderRadius:12}}>
           <strong>Teklif oluşturuldu</strong>
           <div>No: {proposalResult.id}</div>
           <div>Müşteri: {proposalResult.customerName}</div>
           <div>Toplam: {proposalResult.total} ₺</div>
+          <a href={printUrl} target="_blank" style={{display:'inline-flex',marginTop:12,padding:'12px 16px',borderRadius:12,background:'#fff',color:'#111827',fontWeight:900,textDecoration:'none'}}>PDF / Teklif Görüntüle</a>
         </div>
       )}
     </div>
   );
 }
 
-const inputStyle = {
-  width:'100%',
-  height:44,
-  borderRadius:12,
-  border:0,
-  padding:'0 12px',
-  marginTop:6
-};
+const inputStyle = { width:'100%', height:44, borderRadius:12, border:0, padding:'0 12px', marginTop:6 };
